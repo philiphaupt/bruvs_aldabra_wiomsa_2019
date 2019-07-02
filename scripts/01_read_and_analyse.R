@@ -22,9 +22,9 @@ bruvs_dat %>% distinct(opcode)
 # make sure that class is a factor - this will allow the .frop argument to work properly - and not remove zero counts
 bruvs_dat$class <- as.factor(bruvs_dat$class)
 
-#summary of elasmobranchs in BRUVs
-sample_summary = bruvs_dat %>% group_by(opcode,
-                                        treatment,#to make sure that all samples are included
+#summary per sample for RUVs and BRUVs
+sample_summary = bruvs_dat %>% group_by(opcode,#sample code - to ensure that each sample is included
+                                        treatment,#to spearate BRUVs and RUVs
                                         class) %>% #to sepearate results between bony fish and alsmobranchs
                        summarise(sum_maxn = sum(maxn),
                                  sum_pres = sum(pres_abs)
@@ -37,15 +37,19 @@ complete_sample_summary <- sample_summary %>% complete(class, nesting(
                                                                    sum_pres = 0))
 #reset "summed" presence absence to 1/0 (this summed presence is effectively a species count at this point, but we are interested int eh percentage of samples which had elasmobranchs in them)
 complete_sample_summary$pa <- 0
-complete_sample_summary$pa[complete_sample_summary > 0] <- 1
+complete_sample_summary$pa[complete_sample_summary$sum_pres > 0] <- 1
 
 #summary of results for WIOMSA
 #class level sumamry and treatment
 class_summary <- complete_sample_summary %>%
+        rename(species_count = sum_pres) %>%
         group_by(treatment,
                  class) %>%
-        summarise(mean_maxn = mean(sum_maxn))
+        summarise(mean_maxn = mean(sum_maxn),
+                  mean_sp_count = mean(species_count),
+                  mean_pres_abs = mean(pa)
+        )
 
-#class == "Elasmobranchii")
+
                
                
