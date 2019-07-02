@@ -35,7 +35,12 @@ complete_sample_summary <- sample_summary %>% complete(class, nesting(
                                                        opcode),
                                                        fill = list(sum_maxn = 0,
                                                                    sum_pres = 0))
+#reset "summed" presence absence to 1/0 (this summed presence is effectively a species count at this point, but we are interested int eh percentage of samples which had elasmobranchs in them)
+complete_sample_summary$pa <- 0
+complete_sample_summary$pa[complete_sample_summary > 0] <- 1
 
+#summary of results for WIOMSA
+#class level sumamry and treatment
 class_summary <- complete_sample_summary %>%
         group_by(treatment,
                  class) %>%
